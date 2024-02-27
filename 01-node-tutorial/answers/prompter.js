@@ -2,62 +2,72 @@ const http = require("http");
 var StringDecoder = require("string_decoder").StringDecoder;
 
 const getBody = (req, callback) => {
-  const decode = new StringDecoder("utf-8");
-  let body = "";
-  req.on("data", function (data) {
-    body += decode.write(data);
-  });
-  req.on("end", function () {
-    body += decode.end();
-    const body1 = decodeURI(body);
-    const bodyArray = body1.split("&");
-    const resultHash = {};
-    bodyArray.forEach((part) => {
-      const partArray = part.split("=");
-      resultHash[partArray[0]] = partArray[1];
+    const decode = new StringDecoder("utf-8");
+    let body = "";
+    req.on("data", function (data) {
+        body += decode.write(data);
     });
-    callback(resultHash);
-  });
+    req.on("end", function () {
+        body += decode.end();
+        // change decode function to correct #HEX
+        const body1 = decodeURIComponent(body);
+        const bodyArray = body1.split("&");
+        const resultHash = {};
+        bodyArray.forEach((part) => {
+            const partArray = part.split("=");
+            resultHash[partArray[0]] = partArray[1];
+        });
+        callback(resultHash);
+    });
 };
 
-// here, you could declare one or more variables to store what comes back from the form.
-let item = "Enter something below.";
+// declare variables to store what comes back from the form.
+let text = "Choose color of the background.";
+let textColor = "#ffffff"; // default color
+let bgColor = "#3bf7e1"; // default color
 
 // here, you can change the form below to modify the input fields and what is displayed.
 // This is just ordinary html with string interpolation.
 const form = () => {
-  return `
-  <body>
-  <p>${item}</p>
+    return `
+  <body style="background-color:${bgColor}">
+  <p style="font-size:30px;color:${textColor}">${text}</p>
   <form method="POST">
-  <input name="item"></input>
+  <input name="color" type="color" value="${bgColor}"></input>
   <button type="submit">Submit</button>
   </form>
   </body>
   `;
 };
 
+// function to get random color
+const randomHexColorCode = () => {
+    let n = (Math.random() * 0xfffff * 1000000).toString(16);
+    const hexBg = "#" + n.slice(0, 6);
+    return hexBg;
+};
+
 const server = http.createServer((req, res) => {
-  console.log("req.method is ", req.method);
-  console.log("req.url is ", req.url);
-  if (req.method === "POST") {
-    getBody(req, (body) => {
-      console.log("The body of the post is ", body);
-      // here, you can add your own logic
-      if (body["item"]) {
-        item = body["item"];
-      } else {
-        item = "Nothing was entered.";
-      }
-      // Your code changes would end here
-      res.writeHead(303, {
-        Location: "/",
-      });
-      res.end();
-    });
-  } else {
-    res.end(form());
-  }
+    if (req.method === "POST") {
+        getBody(req, (body) => {
+            // if user didn't choose a color, generate random color
+            if (body["color"] === bgColor) {
+                text = "Haven't chosen yet? I'll help you ;)";
+                bgColor = randomHexColorCode();
+            } else {
+                bgColor = body["color"];
+                text = "Excellent choice!";
+            }
+            // if chosen or generated bgColor is white change font color to black
+            textColor = bgColor === "#ffffff" ? "#000000" : "#ffffff";
+            res.writeHead(303, {
+                Location: "/",
+            });
+            res.end();
+        });
+    } else {
+        res.end(form());
+    }
 });
 
 server.listen(3000);
