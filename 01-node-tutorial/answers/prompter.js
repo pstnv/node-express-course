@@ -22,7 +22,7 @@ const getBody = (req, callback) => {
 };
 
 // declare variables to store what comes back from the form.
-let text = "Choose color of the background.";
+let text = "Choose a color for the background.";
 let textColor = "#ffffff"; // default color
 let bgColor = "#3bf7e1"; // default color
 
@@ -30,14 +30,14 @@ let bgColor = "#3bf7e1"; // default color
 // This is just ordinary html with string interpolation.
 const form = () => {
     return `
-  <body style="background-color:${bgColor}">
-  <p style="font-size:30px;color:${textColor}">${text}</p>
-  <form method="POST">
-  <input name="color" type="color" value="${bgColor}"></input>
-  <button type="submit">Submit</button>
-  </form>
-  </body>
-  `;
+    <body style="background-color:${bgColor}">
+        <p style="font-size:30px;color:${textColor}">${text}</p>
+        <form method="POST">
+            <input name="color" type="color" value="${bgColor}"></input>
+            <button type="submit">Submit</button>
+        </form>
+    </body>
+    `;
 };
 
 // function to get random color
@@ -60,6 +60,7 @@ const server = http.createServer((req, res) => {
             }
             // if chosen or generated bgColor is white change font color to black
             textColor = bgColor === "#ffffff" ? "#000000" : "#ffffff";
+            // my code changes ended here
             res.writeHead(303, {
                 Location: "/",
             });
@@ -70,5 +71,4 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(3000);
-console.log("The server is listening on port 3000.");
+server.listen(3000, () => console.log("The server is listening on port 3000."));
