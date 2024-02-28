@@ -24,8 +24,6 @@ async function reader() {
         console.log(text);
     } catch (error) {
         console.log(error.message);
-    } finally {
-        console.log('Done!')
     }
 }
 
@@ -35,6 +33,8 @@ async function readWrite() {
         await reader();
     } catch (error) {
         console.log(error.message);
+    } finally {
+        console.log("Done!");
     }
 }
 
