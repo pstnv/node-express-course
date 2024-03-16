@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <h1>Hello from week 3 Express tutorial!</h1>
+        <button>Show products</button>
+        <div class="results"></div>
+        <script>
+            const button = document.querySelector("button");
+            button.addEventListener("click", async () => {
+                try {
+                    const response = await fetch("/api/v1/products");
+                    if (Math.floor(response.status / 100) !== 2) {
+                        throw new Error("Something went wrong...");
+                    }
+                    const { data } = await response.json();
+                    if (!data) {
+                        results.innerHTML = `<p>No products found</p>`;
+                    }
+                    const products = data
+                        .map((product) => {
+                            const { id, name, image, price, desc } = product;
+                            return `
+            <div class="card">
+                <h3>${name} </h3>
+                <p class="price">${price}</p>
+                <p> ${desc} </p>
+            </div>
+            `;
+                        })
+                        .join("");
+                    results.innerHTML = products;
+                } catch (err) {
+                    console.log(err.message);
+                    results.innerHTML = `<h3>Something went wrong. Try again later.</h3>`;
+                }
+            });
+
+            const results = document.querySelector(".results");
+        </script>
+    </body>
+</html>
