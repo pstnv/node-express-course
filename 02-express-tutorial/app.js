@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const peopleRouter = require("./routes/people");
 const productsRouter = require("./routes/products");
 
@@ -13,6 +14,8 @@ app.use(express.static("./methods-public"));
 app.use(express.urlencoded({ extended: false }));
 // parses a JSON body
 app.use(express.json());
+// parse the cookies
+app.use(cookieParser());
 
 const logger = (req, res, next) => {
     console.log("method: ", req.method);
@@ -22,6 +25,37 @@ const logger = (req, res, next) => {
 };
 
 app.use(logger);
+
+const auth = (req, res, next) => {
+    const { name } = req.cookies;
+    if (!name) {
+        return res
+            .status(401)
+            .json({ success: false, message: "unauthorized" });
+    }
+    req.user = name;
+    next();
+};
+
+app.post("/login", (req, res) => {
+    const { name } = req.body;
+    if (!name) {
+        return res
+            .status(400)
+            .json({ success: false, message: "unauthorized" });
+    }
+    res.cookie("name", name);
+    return res.status(201).json({ success: true, message: `Hello ${name}!` });
+});
+app.delete("/logoff", (req, res) => {
+    res.clearCookie("name");
+    return res.status(200).json({ success: true, message: `User logged off` });
+});
+app.get("/test", auth, (req, res) => {
+    const name = req.user;
+    return res.status(200).json({ success: true, message: `Welcome ${name}` });
+});
+
 app.use("/api/v1/people", peopleRouter);
 app.use("/api/v1/products", productsRouter);
 
