@@ -7,8 +7,8 @@ const app = express();
 const PORT = 3000;
 
 // middleware
-app.use(express.static("./public"));
-// app.use(express.static("./methods-public"));
+// app.use(express.static("./public"));
+app.use(express.static("./methods-public"));
 // parses url-encoded data that is sent by an HTML form
 app.use(express.urlencoded({ extended: false }));
 // parses a JSON body
