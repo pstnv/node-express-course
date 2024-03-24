@@ -48,7 +48,8 @@
 
       const fetchPeople = async () => {
         try {
-          const { data } = await axios.get('/api/people')
+          const { data } = await axios.get('/api/v1/people')
+          console.log(data)
 
           const people = data.data.map((person) => {
             return `<h5>${person.name}</h5>`
@@ -68,9 +69,9 @@
         const nameValue = input.value
 
         try {
-          const { data } = await axios.post('/api/people', { name: nameValue })
+          const { data } = await axios.post('/api/v1/people', { name: nameValue })
           const h5 = document.createElement('h5')
-          h5.textContent = data.person
+          h5.textContent = data.name
           result.appendChild(h5)
         } catch (error) {
           // console.log(error.response)
